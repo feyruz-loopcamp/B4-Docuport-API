@@ -1,0 +1,6 @@
+22.06.2023 21:48:50 INFO  HelloWorldApiStepDefs:30 - GET request completed with response = {
+  "message": "Hello World!"
+}
+
+22.06.2023 21:48:50 INFO  HelloWorldApiStepDefs:35 - actual status code = 200
+22.06.2023 21:48:50 INFO  HelloWorldApiStepDefs:36 - expStatusCode = 200
