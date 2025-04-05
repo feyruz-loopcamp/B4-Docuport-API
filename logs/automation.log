@@ -1,6 +1,9 @@
-22.06.2023 21:48:50 INFO  HelloWorldApiStepDefs:30 - GET request completed with response = {
+05.04.2025 15:04:24 INFO  HelloWorldApiStepDefs:29 - Get request to hello world api response status code: 200
+05.04.2025 15:04:24 INFO  HelloWorldApiStepDefs:31 - Get request to hello world api response body: 
+{
   "message": "Hello World!"
 }
 
-22.06.2023 21:48:50 INFO  HelloWorldApiStepDefs:35 - actual status code = 200
-22.06.2023 21:48:50 INFO  HelloWorldApiStepDefs:36 - expStatusCode = 200
+05.04.2025 15:04:24 INFO  HelloWorldApiStepDefs:36 - Expected status code is 200
+05.04.2025 15:04:24 INFO  HelloWorldApiStepDefs:37 - Actual status code is 200
+05.04.2025 15:04:24 INFO  HelloWorldApiStepDefs:44 - Actual response body message is Hello World!
