@@ -4,6 +4,7 @@ import app.docuport.pages.HomePage;
 import app.docuport.pages.LoginPage;
 import app.docuport.pages.ProfilePage;
 import app.docuport.utilities.*;
+import com.github.javafaker.Faker;
 import io.cucumber.java.af.En;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -14,6 +15,8 @@ import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -23,10 +26,10 @@ public class DocuportApiStepDefs {
     public static final Logger LOG = LogManager.getLogger();
     String eaccesToken;
     Response response;
-    LoginPage loginPage = new LoginPage();
     Map <String, String> userInfo;
-    HomePage homePage = new HomePage();
-    ProfilePage profilePage = new ProfilePage();
+    Faker faker = new Faker();
+    String randomName;
+    Map<String, String> reqBody;
 
 
 
@@ -77,13 +80,15 @@ public class DocuportApiStepDefs {
     public void user_logged_in_to_Docuport_app_as_advisor_role(String userRole) {
         Driver.getDriver().get(Environment.URL);
         //Map<String, String> userInfo = BrowserUtils.getUserInfo(userRole);
+
+        LoginPage loginPage = new LoginPage();
         loginPage.login(userInfo.get("username"), userInfo.get("password"));
 
     }
 
     @When("User goes to profile page")
     public void user_goes_to_profile_page() {
-
+        HomePage homePage = new HomePage();
         homePage.navigateToProfilePage();
         //BrowserUtils.waitFor(5);
 
@@ -91,7 +96,7 @@ public class DocuportApiStepDefs {
 
     @Then("User should see same info on UI and API")
     public void user_should_see_same_info_on_UI_and_API() {
-
+        ProfilePage profilePage = new ProfilePage();
         // From UI
         String uiUserFullName = profilePage.fullName.getText();
         String uiUserRoleName = profilePage.roleName.getText();
@@ -105,6 +110,46 @@ public class DocuportApiStepDefs {
         assertEquals(uiUserRoleName, apiUserRoleName);
     }
 
+
+
+    @When("Users sends POST request to {string} with following info:")
+    public void users_sends_POST_request_to_with_following_info(String endpoint, Map <String, String> reqBodyMap) {
+
+        // We had to store the DATA table in another Map
+        reqBody = new HashMap<>(reqBodyMap); // Converting Data Table into a MAP
+        randomName = faker.name().firstName();
+        //System.out.println(randomName);
+        reqBody.put("name", randomName);
+
+        //System.out.println(reqBody);
+
+        response = given().accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .and().header("Authorization", eaccesToken)
+                .and().body(reqBody)
+                .when().post(Environment.BASE_URL + endpoint);
+
+    }
+
+    @Then("Database should persist same client info")
+    public void database_should_persist_same_client_info() {
+
+        //BrowserUtils.waitFor(10);
+        String query = "SELECT client_type, name, first_name, last_name FROM document.clients WHERE name = '" + randomName + "'";
+        List <Map<String, Object>> listFromDB= DBUtils.getQueryResultMap(query);
+
+        //System.out.println(listFromDB.get(0));
+
+
+        // Here we are doing the assertions with API reqBody and DB
+        assertEquals(reqBody.get("name"), listFromDB.get(0).get("name"));
+
+
+        // Here we are doing the cleanup wih DB
+        String deleteQuery = "DELETE FROM document.clients WHERE name = '" + randomName + "'";
+        DBUtils.executeQuery(deleteQuery);
+
+    }
 
 
 
